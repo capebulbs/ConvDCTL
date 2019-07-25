@@ -1,5 +1,5 @@
 /************
-Conv ver 1.0 by Passiflora Tsui
+Conv ver 2.0 by Passiflora Tsui
 for using convolution in Davinci Resolve
 ************/
 
@@ -13,25 +13,50 @@ DEFINE_UI_PARAMS(ker31, Row 3 Col 1, DCTLUI_VALUE_BOX, 0.0)
 DEFINE_UI_PARAMS(ker32, Row 3 Col 2, DCTLUI_VALUE_BOX, -1.0)
 DEFINE_UI_PARAMS(ker33, Row 3 Col 3, DCTLUI_VALUE_BOX, 0.0)
 DEFINE_UI_PARAMS(coef, Coefficient, DCTLUI_VALUE_BOX, 1.0)
+DEFINE_UI_PARAMS(coefR, Red Coefficient, DCTLUI_VALUE_BOX, 1.0)
+DEFINE_UI_PARAMS(coefG, Green Coefficient, DCTLUI_VALUE_BOX, 1.0)
+DEFINE_UI_PARAMS(coefB, Blue Coefficient, DCTLUI_VALUE_BOX, 1.0)
+DEFINE_UI_PARAMS(offsetR, Red Coefficient, DCTLUI_VALUE_BOX, 0.0)
+DEFINE_UI_PARAMS(offsetG, Green Coefficient, DCTLUI_VALUE_BOX, 0.0)
+DEFINE_UI_PARAMS(offsetB, Blue Coefficient, DCTLUI_VALUE_BOX, 0.0)
 
 __DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y, __TEXTURE__ p_TexR, __TEXTURE__ p_TexG, __TEXTURE__ p_TexB)
 {
-	if (p_X > 0 && p_X < p_Width - 1 && p_Y > 0 && p_Y < p_Height - 1)
-		{
-			const float r = coef * (ker11 * _tex2D(p_TexR, p_X - 1, p_Y - 1) + ker12 * _tex2D(p_TexR, p_X, p_Y - 1) + ker13 * _tex2D(p_TexR, p_X + 1, p_Y - 1) + ker21 * _tex2D(p_TexR, p_X - 1, p_Y) + ker22 * _tex2D(p_TexR, p_X, p_Y) + ker23 * _tex2D(p_TexR, p_X + 1, p_Y) + ker31 * _tex2D(p_TexR, p_X - 1, p_Y + 1) + ker32 * _tex2D(p_TexR, p_X, p_Y + 1) + ker33 * _tex2D(p_TexR, p_X + 1, p_Y + 1));
-			                
-			const float g = coef * (ker11 * _tex2D(p_TexG, p_X - 1, p_Y - 1) + ker12 * _tex2D(p_TexG, p_X, p_Y - 1) + ker13 * _tex2D(p_TexG, p_X + 1, p_Y - 1) + ker21 * _tex2D(p_TexG, p_X - 1, p_Y) + ker22 * _tex2D(p_TexG, p_X, p_Y) + ker23 * _tex2D(p_TexG, p_X + 1, p_Y) + ker31 * _tex2D(p_TexG, p_X - 1, p_Y + 1) + ker32 * _tex2D(p_TexG, p_X, p_Y + 1) + ker33 * _tex2D(p_TexG, p_X + 1, p_Y + 1)); 
-			                
-			const float b = coef * (ker11 * _tex2D(p_TexB, p_X - 1, p_Y - 1) + ker12 * _tex2D(p_TexB, p_X, p_Y - 1) + ker13 * _tex2D(p_TexB, p_X + 1, p_Y - 1) + ker21 * _tex2D(p_TexB, p_X - 1, p_Y) + ker22 * _tex2D(p_TexB, p_X, p_Y) + ker23 * _tex2D(p_TexB, p_X + 1, p_Y) + ker31 * _tex2D(p_TexB, p_X - 1, p_Y + 1) + ker32 * _tex2D(p_TexB, p_X, p_Y + 1) + ker33 * _tex2D(p_TexB, p_X + 1, p_Y + 1));
-			
-			return make_float3(r, g, b);
-		}
-	else
-		{
-			const float r = _tex2D(p_TexR, p_X, p_Y);
-			const float g = _tex2D(p_TexG, p_X, p_Y);
-			const float b = _tex2D(p_TexB, p_X, p_Y);
-			
-			return make_float3(r, g, b);
-		}
+		const float r = offsetR + (coef + coefR) * (
+		ker11 * (p_X * p_Y > 0? _tex2D(p_TexR, p_X - 1, p_Y - 1) : 0) + 
+		ker12 * (p_Y > 0? _tex2D(p_TexR, p_X, p_Y - 1) : 0) + 
+		ker13 * (p_Y * (p_Width - p_X - 1) > 0? _tex2D(p_TexR, p_X + 1, p_Y - 1) : 0) + 
+		ker21 * (p_X > 0? _tex2D(p_TexR, p_X - 1, p_Y) : 0) + 
+		ker22 * _tex2D(p_TexR, p_X, p_Y) + 
+		ker23 * (p_Width - p_X - 1 > 0? _tex2D(p_TexR, p_X + 1, p_Y) : 0) + 
+		ker31 * (p_X * (p_Height - p_Y - 1) > 0? _tex2D(p_TexR, p_X - 1, p_Y + 1) : 0) + 
+		ker32 * (p_Height - p_Y - 1 > 0? _tex2D(p_TexR, p_X, p_Y + 1) : 0) + 
+		ker33 * ((p_Width - p_X - 1) * (p_Height - p_Y - 1) > 0? _tex2D(p_TexR, p_X + 1, p_Y + 1) : 0)
+	);
+	
+	const float g = offsetG + (coef + coefG) * (
+		ker11 * (p_X * p_Y > 0? _tex2D(p_TexG, p_X - 1, p_Y - 1) : 0) + 
+		ker12 * (p_Y > 0? _tex2D(p_TexG, p_X, p_Y - 1) : 0) + 
+		ker13 * (p_Y * (p_Width - p_X - 1) > 0? _tex2D(p_TexG, p_X + 1, p_Y - 1) : 0) + 
+		ker21 * (p_X > 0? _tex2D(p_TexG, p_X - 1, p_Y) : 0) + 
+		ker22 * _tex2D(p_TexG, p_X, p_Y) + 
+		ker23 * (p_Width - p_X - 1 > 0? _tex2D(p_TexG, p_X + 1, p_Y) : 0) + 
+		ker31 * (p_X * (p_Height - p_Y - 1) > 0? _tex2D(p_TexG, p_X - 1, p_Y + 1) : 0) + 
+		ker32 * (p_Height - p_Y - 1 > 0? _tex2D(p_TexG, p_X, p_Y + 1) : 0) + 
+		ker33 * ((p_Width - p_X - 1) * (p_Height - p_Y - 1) > 0? _tex2D(p_TexG, p_X + 1, p_Y + 1) : 0)
+	);
+	
+	const float b = offsetB + (coef + coefB) * (
+		ker11 * (p_X * p_Y > 0? _tex2D(p_TexB, p_X - 1, p_Y - 1) : 0) + 
+		ker12 * (p_Y > 0? _tex2D(p_TexB, p_X, p_Y - 1) : 0) + 
+		ker13 * (p_Y * (p_Width - p_X - 1) > 0? _tex2D(p_TexB, p_X + 1, p_Y - 1) : 0) + 
+		ker21 * (p_X > 0? _tex2D(p_TexB, p_X - 1, p_Y) : 0) + 
+		ker22 * _tex2D(p_TexB, p_X, p_Y) + 
+		ker23 * (p_Width - p_X - 1 > 0? _tex2D(p_TexB, p_X + 1, p_Y) : 0) + 
+		ker31 * (p_X * (p_Height - p_Y - 1) > 0? _tex2D(p_TexB, p_X - 1, p_Y + 1) : 0) + 
+		ker32 * (p_Height - p_Y - 1 > 0? _tex2D(p_TexB, p_X, p_Y + 1) : 0) + 
+		ker33 * ((p_Width - p_X - 1) * (p_Height - p_Y - 1) > 0? _tex2D(p_TexB, p_X + 1, p_Y + 1) : 0)
+	);               
+	
+	return make_float3(r, g, b);
 } 	
