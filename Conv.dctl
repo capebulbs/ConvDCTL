@@ -16,9 +16,9 @@ DEFINE_UI_PARAMS(coef, Coefficient, DCTLUI_VALUE_BOX, 1.0)
 DEFINE_UI_PARAMS(coefR, Red Coefficient, DCTLUI_VALUE_BOX, 1.0)
 DEFINE_UI_PARAMS(coefG, Green Coefficient, DCTLUI_VALUE_BOX, 1.0)
 DEFINE_UI_PARAMS(coefB, Blue Coefficient, DCTLUI_VALUE_BOX, 1.0)
-DEFINE_UI_PARAMS(offsetR, Red Coefficient, DCTLUI_VALUE_BOX, 0.0)
-DEFINE_UI_PARAMS(offsetG, Green Coefficient, DCTLUI_VALUE_BOX, 0.0)
-DEFINE_UI_PARAMS(offsetB, Blue Coefficient, DCTLUI_VALUE_BOX, 0.0)
+DEFINE_UI_PARAMS(offsetR, Red Offset, DCTLUI_VALUE_BOX, 0.0)
+DEFINE_UI_PARAMS(offsetG, Green Offset, DCTLUI_VALUE_BOX, 0.0)
+DEFINE_UI_PARAMS(offsetB, Blue Offset, DCTLUI_VALUE_BOX, 0.0)
 
 __DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y, __TEXTURE__ p_TexR, __TEXTURE__ p_TexG, __TEXTURE__ p_TexB)
 {
